@@ -81,7 +81,14 @@ def show_pokemon(request, pokemon_id):
             pokemon.Lon,
             request.build_absolute_uri('/media/' + str(pokemon.Pokemon.image))
         )
+    images = {
+        'pokemon_image': request.build_absolute_uri('/media/' + str(requested_pokemon.image)),
+        'next_pokemon_image': request.build_absolute_uri('/media/' + str(requested_pokemon.next_evolution.image)) if requested_pokemon.next_evolution else '',
+        'prev_pokemon_image': request.build_absolute_uri('/media/' + str(requested_pokemon.previous_evolution.image)) if requested_pokemon.previous_evolution else '',
+    }
 
     return render(request, 'pokemon.html', context={
-        'map': folium_map._repr_html_(), 'pokemon': requested_pokemon
-    })
+        'map': folium_map._repr_html_(),
+        'pokemon': requested_pokemon,
+        'images': images,
+})
