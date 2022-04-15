@@ -82,7 +82,6 @@ def show_pokemon(request, pokemon_id):
             request.build_absolute_uri('/media/' + str(pokemon.Pokemon.image))
         )
     pokemon_next_evolutions = requested_pokemon.next_evolutions.first()
-    print(pokemon_next_evolutions)
     pokemon_previous_evolution = requested_pokemon.previous_evolution
     images = {
         'pokemon_image': request.build_absolute_uri('/media/' + str(requested_pokemon.image)),
