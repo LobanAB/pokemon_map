@@ -13,6 +13,7 @@ DEFAULT_IMAGE_URL = (
     '/latest/fixed-aspect-ratio-down/width/240/height/240?cb=20130525215832'
     '&fill=transparent'
 )
+POKEMON_DEFAULT_IMAGE = 'images/Question_mark.png'
 
 
 def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
@@ -29,12 +30,11 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
 
 
 def show_all_pokemons(request):
-    # with open('pokemon_entities/pokemons.json', encoding='utf-8') as database:
-    #    pokemons = json.load(database)['pokemons']
     pokemons = PokemonEntity.objects.all()
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     for pokemon in pokemons:
-        #for pokemon_entity in pokemon['entities']:
+        if not pokemon.Pokemon.image:
+            pokemon.Pokemon.image = POKEMON_DEFAULT_IMAGE
         add_pokemon(
             folium_map, pokemon.Lat,
             pokemon.Lon,
@@ -44,6 +44,8 @@ def show_all_pokemons(request):
     pokemons_on_page = []
     pokemon_objects = Pokemon.objects.all()
     for pokemon in pokemon_objects:
+        if not pokemon.image:
+            pokemon.image = POKEMON_DEFAULT_IMAGE
         pokemons_on_page.append({
             'pokemon_id': pokemon.id,
             'img_url': request.build_absolute_uri('/media/' + str(pokemon.image)),
@@ -57,25 +59,15 @@ def show_all_pokemons(request):
 
 
 def show_pokemon(request, pokemon_id):
-    #with open('pokemon_entities/pokemons.json', encoding='utf-8') as database:
-    #    pokemons = json.load(database)['pokemons']
     requested_pokemon = Pokemon.objects.get(id=int(pokemon_id))
     try:
         pokemons = PokemonEntity.objects.filter(Pokemon=requested_pokemon)
     except PokemonEntity.DoesNotExist:
         return HttpResponseNotFound('<h1>Такой покемон не найден</h1>')
-
-    '''
-    for pokemon in pokemons:
-        if pokemon.id == int(pokemon_id):
-            requested_pokemon = pokemon
-            break
-    else:
-        return HttpResponseNotFound('<h1>Такой покемон не найден</h1>')
-    '''
-
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     for pokemon in pokemons:
+        if not pokemon.Pokemon.image:
+            pokemon.Pokemon.image = POKEMON_DEFAULT_IMAGE
         add_pokemon(
             folium_map, pokemon.Lat,
             pokemon.Lon,
@@ -83,6 +75,8 @@ def show_pokemon(request, pokemon_id):
         )
     pokemon_next_evolutions = requested_pokemon.next_evolutions.first()
     pokemon_previous_evolution = requested_pokemon.previous_evolution
+    if not requested_pokemon.image:
+        requested_pokemon.image = POKEMON_DEFAULT_IMAGE
     images = {
         'pokemon_image': request.build_absolute_uri('/media/' + str(requested_pokemon.image)),
         'next_pokemon_image': request.build_absolute_uri('/media/' + str(pokemon_next_evolutions.image)) if pokemon_next_evolutions else '',
