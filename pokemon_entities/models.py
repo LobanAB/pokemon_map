@@ -8,12 +8,12 @@ class Pokemon(models.Model):
     title_en = models.CharField('Название англ.', max_length=200, blank=True)
     title_jp = models.CharField('Название яп.', max_length=200, blank=True)
     previous_evolution = models.ForeignKey('self',
-                                           on_delete=models.SET_NULL,
-                                           null=True,
-                                           blank=True,
-                                           related_name='next_evolutions',
-                                           verbose_name='Предэволюция',
-                                           )
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='next_evolutions',
+        verbose_name='Предэволюция',
+    )
 
     def __str__(self):
         return self.title
