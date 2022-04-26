@@ -32,4 +32,4 @@ class PokemonEntity(models.Model):
     stamina = models.IntegerField('Выносливость', null=True, blank=True)
 
     def __str__(self):
-        return self.Pokemon.title
+        return self.pokemon.title

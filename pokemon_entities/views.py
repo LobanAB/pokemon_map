@@ -1,6 +1,6 @@
 import folium
 
-from django.http import HttpResponseNotFound
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 
 from pokemon_entities.models import (Pokemon, PokemonEntity)
@@ -32,12 +32,12 @@ def show_all_pokemons(request):
     pokemons = PokemonEntity.objects.all()
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     for pokemon in pokemons:
-        if not pokemon.Pokemon.image:
-            pokemon.Pokemon.image = POKEMON_DEFAULT_IMAGE
+        if not pokemon.pokemon.image:
+            pokemon.pokemon.image = POKEMON_DEFAULT_IMAGE
         add_pokemon(
-            folium_map, pokemon.Lat,
-            pokemon.Lon,
-            request.build_absolute_uri('/media/' + str(pokemon.Pokemon.image))
+            folium_map, pokemon.lat,
+            pokemon.lon,
+            request.build_absolute_uri('/media/' + str(pokemon.pokemon.image))
         )
 
     pokemons_on_page = []
@@ -58,19 +58,19 @@ def show_all_pokemons(request):
 
 
 def show_pokemon(request, pokemon_id):
-    requested_pokemon = Pokemon.objects.get(id=int(pokemon_id))
+    requested_pokemon = get_object_or_404(Pokemon, id=pokemon_id)
     try:
-        pokemons = PokemonEntity.objects.filter(Pokemon=requested_pokemon)
+        pokemon_entities = PokemonEntity.objects.filter(pokemon=requested_pokemon)
     except PokemonEntity.DoesNotExist:
         return HttpResponseNotFound('<h1>Такой покемон не найден</h1>')
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    for pokemon in pokemons:
-        if not pokemon.Pokemon.image:
-            pokemon.Pokemon.image = POKEMON_DEFAULT_IMAGE
+    for pokemon in pokemon_entities:
+        if not pokemon.pokemon.image:
+            pokemon.pokemon.image = POKEMON_DEFAULT_IMAGE
         add_pokemon(
-            folium_map, pokemon.Lat,
-            pokemon.Lon,
-            request.build_absolute_uri('/media/' + str(pokemon.Pokemon.image))
+            folium_map, pokemon.lat,
+            pokemon.lon,
+            request.build_absolute_uri('/media/' + str(pokemon.pokemon.image))
         )
     pokemon_next_evolutions = requested_pokemon.next_evolutions.first()
     pokemon_previous_evolution = requested_pokemon.previous_evolution
